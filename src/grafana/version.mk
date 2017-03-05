@@ -1,0 +1,2 @@
+NAME=grafana
+VERSION=4.1.2

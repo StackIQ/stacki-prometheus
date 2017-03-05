@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+
+	<description>
+	Your stacki-prometheus pallet description here
+	</description>
+
+	<si_copyright>
+	(c) 2006 - 2016 StackIQ Inc.
+	All rights reserved. stacki(r) v3.1 www.stacki.com
+	</si_copyright>
+
+<package>node_exporter</package>
+
+<post>
+getent group prometheus &gt; /dev/null || groupadd -r prometheus
+getent passwd prometheus &gt; /dev/null || useradd -r -g prometheus -d /var/lib/prometheus \
+    -s /sbin/nologin -c "prometheus user" prometheus
+
+mkdir -p /var/lib/prometheus
+chown -R prometheus:prometheus /var/lib/prometheus
+
+systemctl enable node_exporter
+</post>
+
+</kickstart>

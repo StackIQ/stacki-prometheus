@@ -1,0 +1,24 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+
+	<description>
+	Your stacki-prometheus pallet description here
+	</description>
+
+	<si_copyright>
+	(c) 2006 - 2016 StackIQ Inc.
+	All rights reserved. stacki(r) v3.1 www.stacki.com
+	</si_copyright>
+
+<package>prometheus</package>
+<package>grafana</package>
+
+<post>
+
+systemctl enable prometheus grafana-server
+systemctl start node_exporter prometheus grafana-server
+</post>
+
+</kickstart>

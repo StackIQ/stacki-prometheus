@@ -1,0 +1,15 @@
+%_topdir		/data2/src/stacki-prometheus/src/prometheus/../../build-stacki-prometheus-
+%buildroot	/data2/src/stacki-prometheus/src/prometheus/prometheus.buildroot
+%_var		/var
+%debug_package	%{nil}
+%__os_install_post    \
+/usr/lib/rpm/redhat/brp-compress \
+%{!?__debug_package: \
+/usr/lib/rpm/redhat/brp-strip %{__strip} \
+/usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} \
+} \
+/usr/lib/rpm/redhat/brp-strip-static-archive %{__strip} \
+/usr/lib/rpm/redhat/brp-python-hardlink \
+%{!?__jar_repack:/usr/lib/rpm/redhat/brp-java-repack-jars} \
+%{nil}
+
