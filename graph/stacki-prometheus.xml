@@ -16,15 +16,6 @@
 
 	<edge from="base" to="stacki-prometheus-base" />
 	<edge from="server" to="stacki-prometheus-server" />
-	<edge from="client" to="stacki-prometheus-client" />
+	<edge from="backend" to="stacki-prometheus-backend" />
 
-	<!-- Add ordering of edges here. This defines
-	     the order in which the node XML files
-	     are run -->
-	<!--
-	     For example, to run the post section in stacki-prometheus-base
-	     after the resolv.xml from the stacki pallet, use the
-	     following directive
-	     <order head="resolv" tail="stacki-prometheus-base" />
-	-->
 </graph>
