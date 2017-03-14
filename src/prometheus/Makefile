@@ -9,6 +9,7 @@ RURL		= https://github.com/prometheus/$(NAME)/releases/latest
 SHAREDOCDIR	= /usr/share/doc/$(NAME)/
 TGZNAME		= $(NAME)-$(VERSION).linux-amd64.$(TGZ)
 TARDIR		= $(NAME)-$(VERSION).linux-amd64
+RPM.ARCH	= x86_64
 
 include $(STACKBUILD)/etc/CCRules.mk
 

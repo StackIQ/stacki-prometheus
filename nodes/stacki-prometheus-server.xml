@@ -14,11 +14,183 @@
 
 <package>prometheus</package>
 <package>grafana</package>
+<package>stacki-dashboards</package>
 
 <post>
+mkdir -p /opt/prometheus/dashboards
 
-systemctl enable prometheus grafana-server
+for f in `ls /opt/prometheus/share/*.json`; do
+	sname=`echo $f | cut -d "/" -f 5-`
+	sed "s/\${DS_PROMETHEUS}/&hostname;-prometheus/g" $f &gt; /opt/prometheus/dashboards/$sname
+	sed -i "s/DS_PROMETHEUS/&hostname;-prometheus/g" /opt/prometheus/dashboards/$sname
+done
+</post>
+
+<post> 
+<file name="/opt/prometheus/bin/grafana_config" perms="0755">
+#!/opt/stack/bin/python
+import stack.api as api
+import requests
+import json
+
+url='http://admin:admin@127.0.0.1:3000/api'
+
+payload = {"name":"&hostname;-prometheus", 
+	"type":"prometheus", 
+	"url":"http://localhost:9090", 
+	"access":"proxy", 
+	"isDefault":"true", 
+	"database":"grafana.db", 
+	"user":"admin", "password":"&Kickstart_PrivateRootPassword;"}
+
+def has_it(pallet):
+	p = api.Call('list.pallet')
+	return [ True for i in p if i['name'] == pallet ]
+
+
+# Delete it
+def delete_ds(url):
+	r = requests.get('%s/datasources' % url)
+	for d in r.json():
+		dsid = d['id']
+		r = requests.delete('%s/%s' % (url,dsid))
+
+def add_ds(url,payload):
+	r = requests.post('%s/datasources' % url, payload)
+	print r.text
+
+def delete_dash(url):
+	r = requests.get('%s/search' % url)
+	dids = [ d['uri'] for d in r.json() ]
+	for d in dids:
+		r = requests.delete('%s/dashboards/%s' % (url,d))
+	
+def get_ds(url):
+	r = requests.get('%s/datasources' % url)
+	return r.json()
+
+def get_dash(url):
+	r = requests.get('%s/search' % url)
+	return r.json()
+
+def add_dash(url,fname):
+	headers = {"Content-Type": "application/json;charset=UTF-8"}
+
+	with open(fname, 'rb') as f:
+		jfile = json.load(f)
+	r = requests.post('%s/dashboards/db' % url, headers, jfile)
+	print r
+	print r.status_code
+	print r.text
+
+print ("Deleting datasources and dashboards.")
+
+ds = get_ds(url)
+if ds != []:
+	delete_ds(url)
+dsb = get_dash(url)
+if dsb != []:
+	delete_dash(url)
+
+print ("adding &hostname;-prometheus datasource...")
+add_ds(url,payload)
+
+print ("adding node_exporter metrics...")
+add_dash(url,'/opt/prometheus/dashboards/node-exporter-server-metrics_rev4.json')
+
+if has_it('stacki-kubernetes')[0] == True:
+	print "adding kubernetes prometheus"
+	add_dash(url,
+		'/opt/prometheus/dashboards/kubernetes-pod-monitoring_rev1.json')
+	
+if has_it('stacki-docker')[0] == True:
+	print "adding docker monitoring"
+	add_dash(url,
+		'/opt/prometheus/dashboards/docker-monitoring_rev1.json')
+
+</file>
+</post>
+
+<post cond="docker.swarm">
+
+<file name="/opt/prometheus/bin/grafana_config" mode="append" perms="0755">
+print "adding docker swarm monitoring"
+add_dash(url, '/opt/prometheus/dashboards/docker-swarm-container-overview_rev20.json')
+</file>
+
+</post>
+
+<!-- Change admin default password, not really working, oldpassword isn't recognized
+<post>
+<file name="/opt/prometheus/bin/grafana_config" mode="append" perms="0755">
+print ("Changing password...")
+
+pwdjson = { "oldPassword": "admin", 
+	"newPassword": "&Kickstart_PrivateRootPassword;",
+	"confirmNew": "&Kickstart_PrivateRootPassword;" }
+
+r = requests.put('%s/user/password' % url, pwdjson)
+print r
+print r.status_code
+print r.text
+</file>
+</post>
+-->
+
+<post>
+<file name="/opt/prometheus/etc/prometheus.yml"><![CDATA[
+# my global config
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'codelab-monitor'
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first.rules"
+  # - "second.rules"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['localhost:9090',
+                  'backend-0-0:9100',
+                  'backend-0-0:4194',
+                  'backend-0-0:8080',
+                  'backend-0-1:9100',
+                  'backend-0-1:4194',
+                  'backend-0-2:9100',
+                  'backend-0-2:4194',
+                  'backend-0-3:9100',
+                  'backend-0-3:4194',
+                  'backend-0-4:9100',
+                  'backend-0-4:4194'
+                 ]
+]]>
+</file>
+</post>
+
+<post>
+systemctl enable prometheus grafana-server node_exporter
 systemctl start node_exporter prometheus grafana-server
+
+sleep 10
+
+/opt/prometheus/bin/grafana_config
+
+systemctl restart grafana-server
 </post>
 
 </kickstart>

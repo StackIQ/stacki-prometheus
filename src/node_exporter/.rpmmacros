@@ -1,4 +1,4 @@
-%_topdir		/data2/src/stacki-prometheus/src/node_exporter/../../build-stacki-prometheus-
+%_topdir		/data2/src/stacki-prometheus/src/node_exporter/../../build-stacki-prometheus-master
 %buildroot	/data2/src/stacki-prometheus/src/node_exporter/node_exporter.buildroot
 %_var		/var
 %debug_package	%{nil}
