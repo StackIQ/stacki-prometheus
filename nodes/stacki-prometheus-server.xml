@@ -3,18 +3,26 @@
 <kickstart>
 
 
-	<description>
-	Your stacki-prometheus pallet description here
-	</description>
+<description>
+Your stacki-prometheus pallet description here
+</description>
 
-	<si_copyright>
-	(c) 2006 - 2016 StackIQ Inc.
-	All rights reserved. stacki(r) v3.1 www.stacki.com
-	</si_copyright>
+<si_copyright>
+(c) 2006 - 2016 StackIQ Inc.
+All rights reserved. stacki(r) v3.1 www.stacki.com
+</si_copyright>
 
 <package>prometheus</package>
 <package>grafana</package>
 <package>stacki-dashboards</package>
+<package>stacki-prometheus-commands</package>
+<package>foundation-py-requests</package>
+<package>sflow-rt</package>
+<package>jdk-1.8.0</package>
+
+<post>
+systemctl enable sflow-rt
+</post>
 
 <post>
 mkdir -p /opt/prometheus/dashboards
@@ -98,15 +106,19 @@ add_ds(url,payload)
 print ("adding node_exporter metrics...")
 add_dash(url,'/opt/prometheus/dashboards/node-exporter-server-metrics_rev4.json')
 
-if has_it('stacki-kubernetes')[0] == True:
-	print "adding kubernetes prometheus"
-	add_dash(url,
-		'/opt/prometheus/dashboards/kubernetes-pod-monitoring_rev1.json')
-	
-if has_it('stacki-docker')[0] == True:
-	print "adding docker monitoring"
-	add_dash(url,
-		'/opt/prometheus/dashboards/docker-monitoring_rev1.json')
+try:
+    if has_it('stacki-kubernetes')[0] == True:
+        print "adding kubernetes prometheus"
+        add_dash(url,
+        '/opt/prometheus/dashboards/kubernetes-pod-monitoring_rev1.json')
+except: pass
+
+try:
+    if has_it('stacki-docker')[0] == True:
+        print "adding docker monitoring"
+        add_dash(url,
+            '/opt/prometheus/dashboards/docker-monitoring_rev1.json')
+except: pass
 
 </file>
 </post>
@@ -116,29 +128,13 @@ if has_it('stacki-docker')[0] == True:
 <file name="/opt/prometheus/bin/grafana_config" mode="append" perms="0755">
 print "adding docker swarm monitoring"
 add_dash(url, '/opt/prometheus/dashboards/docker-swarm-container-overview_rev20.json')
+add_dash(url, '/opt/prometheus/dashboards/docker-engine-metrics_rev2.json')
 </file>
 
 </post>
 
-<!-- Change admin default password, not really working, oldpassword isn't recognized
 <post>
-<file name="/opt/prometheus/bin/grafana_config" mode="append" perms="0755">
-print ("Changing password...")
-
-pwdjson = { "oldPassword": "admin", 
-	"newPassword": "&Kickstart_PrivateRootPassword;",
-	"confirmNew": "&Kickstart_PrivateRootPassword;" }
-
-r = requests.put('%s/user/password' % url, pwdjson)
-print r
-print r.status_code
-print r.text
-</file>
-</post>
--->
-
-<post>
-<file name="/opt/prometheus/etc/prometheus.yml"><![CDATA[
+<file name="/opt/prometheus/etc/prometheus.main">
 # my global config
 global:
   scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
@@ -148,7 +144,7 @@ global:
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-      monitor: 'codelab-monitor'
+      monitor: '&hostname;-monitor'
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -157,29 +153,17 @@ rule_files:
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
+</file>
+
+<file name="/opt/prometheus/etc/prometheus.job">
+# The job name is added as a label job=job_name to any timeseries scraped from this config.
 scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: 'prometheus'
 
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
 
-    static_configs:
-      - targets: ['localhost:9090',
-                  'backend-0-0:9100',
-                  'backend-0-0:4194',
-                  'backend-0-0:8080',
-                  'backend-0-1:9100',
-                  'backend-0-1:4194',
-                  'backend-0-2:9100',
-                  'backend-0-2:4194',
-                  'backend-0-3:9100',
-                  'backend-0-3:4194',
-                  'backend-0-4:9100',
-                  'backend-0-4:4194'
-                 ]
-]]>
-</file>
+    static_configs:</file>
 </post>
 
 <post>
@@ -191,6 +175,7 @@ sleep 10
 /opt/prometheus/bin/grafana_config
 
 systemctl restart grafana-server
+stack report prometheus | stack report script | bash
 </post>
 
 </kickstart>

@@ -12,17 +12,24 @@
 	All rights reserved. stacki(r) v3.1 www.stacki.com
 	</si_copyright>
 
-<!--
-     List packages that will only be
-     installed on backends
-	<package>package-backend-1</package>
-	<package>package-backend-2</package>
--->
+<package>hsflowd</package>
 
-<!-- Post section that will be run
-     only on backends
 <post>
+<file name="/etc/hsflowd.conf">
+sflow {
+  sampling = 400
+  polling = 10
+  collector { ip = &Kickstart_PrivateAddress;}
+  docker { }
+  pcap { dev = docker0 }
+  pcap { dev = docker_gwbridge }
+}
+</file>
 </post>
--->
+
+<post>
+systemctl enable hsflowd
+</post>
+
 
 </kickstart>
