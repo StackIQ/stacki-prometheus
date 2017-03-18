@@ -160,7 +160,7 @@ scrape_configs:
     static_configs:</file>
 </post>
 
-<post>
+<post cond="prometheus.firewall">
 /opt/stack/bin/stack add host firewall &hostname; network=all \
 	table=filter rulename=PROMETHEUS service="9090" \
 	protocol="tcp" action="ACCEPT" chain="INPUT" \

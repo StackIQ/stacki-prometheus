@@ -4,5 +4,3 @@ node_exporter
 prometheus
 stacki-dashboards
 stacki-prometheus-commands
-hsflowd
-sflow-rt
