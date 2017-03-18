@@ -43,7 +43,7 @@ class Command(stack.commands.HostArgumentProcessor,
 		
 	def writePrometheusYAML(self):
 		pdir = "/opt/prometheus/etc"
-		self.addOutput('', '<file name="%s/prometheus.test.yml">' % pdir)
+		self.addOutput('', '<file name="%s/prometheus.yml">' % pdir)
 		if os.path.isfile(pdir + "/prometheus.main"):
 
 			f = open(pdir + "/prometheus.main",'rb')

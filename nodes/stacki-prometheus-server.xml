@@ -21,10 +21,6 @@ All rights reserved. stacki(r) v3.1 www.stacki.com
 <package>jdk-1.8.0</package>
 
 <post>
-systemctl enable sflow-rt
-</post>
-
-<post>
 mkdir -p /opt/prometheus/dashboards
 
 for f in `ls /opt/prometheus/share/*.json`; do
@@ -167,15 +163,39 @@ scrape_configs:
 </post>
 
 <post>
-systemctl enable prometheus grafana-server node_exporter
-systemctl start node_exporter prometheus grafana-server
+/opt/stack/bin/stack add host firewall &hostname; network=all \
+	table=filter rulename=PROMETHEUS service="9090" \
+	protocol="tcp" action="ACCEPT" chain="INPUT" \
+	flags="-m state --state NEW" comment="Prometheus"
 
+/opt/stack/bin/stack add host firewall &hostname; network=all \
+	table=filter rulename=GRAFANA service="3000" \
+	protocol="tcp" action="ACCEPT" chain="INPUT" \
+	flags="-m state --state NEW" comment="Grafana"
+
+/opt/stack/bin/stack add host firewall &hostname; network=all \
+	table=filter rulename=SFLOWRT service="8008" \
+	protocol="tcp" action="ACCEPT" chain="INPUT" \
+	flags="-m state --state NEW" comment="sflow-rt"
+
+systemctl restart iptables
+</post>
+
+<post>
+systemctl enable prometheus grafana-server node_exporter sflow-rt.service
+systemctl start node_exporter prometheus grafana-server sflow-rt.service
+
+echo "Breathe..."
 sleep 10
 
+echo "Configuring Grafana..."
 /opt/prometheus/bin/grafana_config
 
 systemctl restart grafana-server
-stack report prometheus | stack report script | bash
+
+echo "Syncing prometheus.yml..."
+stack sync prometheus
+systemctl is-active prometheus
 </post>
 
 </kickstart>
