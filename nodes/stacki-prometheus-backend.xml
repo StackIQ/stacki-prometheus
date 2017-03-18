@@ -12,23 +12,8 @@
 	All rights reserved. stacki(r) v3.1 www.stacki.com
 	</si_copyright>
 
-<package>hsflowd</package>
-
+<package></package>
 <post>
-<file name="/etc/hsflowd.conf">
-sflow {
-  sampling = 400
-  polling = 10
-  collector { ip = &Kickstart_PrivateAddress;}
-  docker { }
-  pcap { dev = docker0 }
-  pcap { dev = docker_gwbridge }
-}
-</file>
-</post>
-
-<post>
-systemctl enable hsflowd
 </post>
 
 

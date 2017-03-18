@@ -17,8 +17,6 @@ All rights reserved. stacki(r) v3.1 www.stacki.com
 <package>stacki-dashboards</package>
 <package>stacki-prometheus-commands</package>
 <package>foundation-py-requests</package>
-<package>sflow-rt</package>
-<package>jdk-1.8.0</package>
 
 <post>
 mkdir -p /opt/prometheus/dashboards
@@ -173,17 +171,12 @@ scrape_configs:
 	protocol="tcp" action="ACCEPT" chain="INPUT" \
 	flags="-m state --state NEW" comment="Grafana"
 
-/opt/stack/bin/stack add host firewall &hostname; network=all \
-	table=filter rulename=SFLOWRT service="8008" \
-	protocol="tcp" action="ACCEPT" chain="INPUT" \
-	flags="-m state --state NEW" comment="sflow-rt"
-
 systemctl restart iptables
 </post>
 
 <post>
-systemctl enable prometheus grafana-server node_exporter sflow-rt.service
-systemctl start node_exporter prometheus grafana-server sflow-rt.service
+systemctl enable prometheus grafana-server node_exporter
+systemctl start node_exporter prometheus grafana-server
 
 echo "Breathe..."
 sleep 10
