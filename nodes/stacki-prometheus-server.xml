@@ -47,7 +47,7 @@ payload = {"name":"&hostname;-prometheus",
 
 def has_it(pallet):
 	p = api.Call('list.pallet')
-	return [ True for i in p if i['name'] == pallet ]
+	return [ True for i in p if i['name'] == pallet and i['boxes'] != '']
 
 
 # Delete it
