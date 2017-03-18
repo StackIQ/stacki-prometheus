@@ -64,6 +64,4 @@ class Command(stack.commands.sync.command):
 				shell=True)
 		p2.communicate(o)
 		subprocess.call(['/usr/bin/systemctl','restart','prometheus'],
-			stdout=open('/root/prom.log'), stderr=open('/root/prom.log'))
-
-RollName = "stacki"
+				stdout=open('/dev/null'), stderr=open('/dev/null'))
