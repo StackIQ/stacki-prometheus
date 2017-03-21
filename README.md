@@ -5,6 +5,8 @@ By default, stacki doesn't have a monitoring built-in, which looks really crappy
 It's also a problem if you're like me and don't want to have to check on every little thing to see if something is working like you think it should, so you build in monitoring and if you have pretty graphs with colors, everything is working. Call me lazy or call me a philosopher, the end result is this pallet. 
 
 <h3>The stacki-prometheus pallet</h3>
+Monitoring is done on the frontend. I have not adapted this pallet to run on a backend node. 
+
 Software installed:
 - prometheus 1.5.2
 - grafana 4.1.2-1486989747 (tell me what kind of version is that, seriously?)
@@ -18,7 +20,11 @@ When you add and run the pallet, a config file, /opt/prometheus/etc/prometheus.y
 
 Get the pallet:
 ```
-wget 
+wget http://stacki.s3.amazonaws.com/public/pallets/3.2/open-source/stacki-prometheus-1.5.2-7.x.x86_64.disk1.iso
+
+md5sum is:
+
+MD5 (stacki-prometheus-1.5.2-7.x.x86_64.disk1.iso) = 004a9dce05197a669feb47bc49ab7cce
 ```
 
 I'm assuming you have hosts, they're not installed yet. You either are running only bare metal machines, stacki-docker, or stacki-docker+stacki-kubernetes. I'm assuming you have run those pallets already. (If you're only doing this on bare metal machines with no docker and no kubernetes, you'll get machine monitoring without running any pallet other than the stacki-prometheus pallet.)
@@ -134,11 +140,13 @@ adding docker swarm monitoring
 Syncing prometheus.yml...
 RCS file: /opt/prometheus/etc/RCS/prometheus.yml,v
 done
+active
 ```
 
 What just happened here?
 
 Well, we installed grafana, prometheus, node_exporter, and stacki-dashboards on the frontend. 
+
 We created an /opt/prometheus/etc/prometheus.yml file that will get metrics from several ports on backend nodes depending on what pallets you have.
 
 The following watched ports are cumulative:
@@ -160,5 +168,17 @@ If you add hosts and want to sync prometheus to reflect that run:
 stack sync prometheus
 ```
 
+The stacki-dashboards prepopulate machine,docker, and kubernetes dashboards for Grafana. If you don't want/like them, you're free to download whatever you need and adapt from grafana.net. Just remove the ones already loaded.
+
+The prometheus datasource is also preloaded and defaults to `hostname-prometheues`. You should see this on the Grafana page.
+
+You should now be able to reach your grafana and promethes pages at:
+
+Prometheus: http://frontend.ip:9090 
+Grafana: http://frontend.ip:3000
+
+If you want these to ports open to the world, use the following firewall rules:
+
+```
 There's lots of work that can be done here in terms of sync configuration, scrape_configs in prometheus etc. We are more than happy to have help to make this better. 
 
