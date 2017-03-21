@@ -1,11 +1,11 @@
 <h3>Stacki Prometheus for Monitoring</h3>
 
-By default, stacki doesn't have a monitoring built-in, which looks really crappy when you're doing demos for people who like pretty graphs with colors. 
+By default, stacki doesn't have monitoring built-in, which looks really crappy when you're doing demos for people who like pretty graphs with colors. 
 
-It's also a problem if you're like me and don't want to have to check on every little thing to see if something is working like you think it should, so you build in monitoring and if you have pretty graphs with colors, everything is working. Call me lazy or call me a philosopher, the end result is this pallet. 
+It's also a problem if you're like me and don't want to have to check on every little thing to see if something is working like you think it should. So you build in monitoring, and if you have pretty graphs with colors, everything is working. Call me lazy or call me a philosopher, the end result is this pallet. 
 
 <h3>The stacki-prometheus pallet</h3>
-Monitoring is done on the frontend. I have not adapted this pallet to run on a backend node. 
+Monitoring is done on the frontend. I have not adapted this pallet to run the graphical pieces on a backend node. 
 
 Software installed:
 - prometheus 1.5.2
@@ -168,7 +168,7 @@ If you add hosts and want to sync prometheus to reflect that run:
 stack sync prometheus
 ```
 
-The stacki-dashboards prepopulate machine,docker, and kubernetes dashboards for Grafana. If you don't want/like them, you're free to download whatever you need and adapt from grafana.net. Just remove the ones already loaded.
+The stacki-dashboards prepopulate machine, docker, and kubernetes dashboards for Grafana. If you don't want/like them, you're free to download whatever you need and adapt from grafana.net. Just remove the ones already loaded.
 
 The prometheus datasource is also preloaded and defaults to `hostname-prometheues`. You should see this on the Grafana page.
 
@@ -178,7 +178,15 @@ Prometheus: http://frontend.ip:9090
 Grafana: http://frontend.ip:3000
 
 If you want these to ports open to the world, use the following firewall rules:
-
 ```
+export HOST=`hostname`
+
+/opt/stack/bin/stack add host firewall ${HOST} network=all table=filter rulename=PROMETHEUS service="9090" protocol="tcp" action="ACCEPT" chain="INPUT" flags="-m state --state NEW" comment="Prometheus"
+
+/opt/stack/bin/stack add host firewall ${HOST} network=all table=filter rulename=GRAFANA service="3000" protocol="tcp" action="ACCEPT" chain="INPUT" flags="-m state --state NEW" comment="Prometheus"
+```
+
+Then these ports will be available for anyone hitting your frontend.
+
 There's lots of work that can be done here in terms of sync configuration, scrape_configs in prometheus etc. We are more than happy to have help to make this better. 
 
