@@ -1,2 +1,2 @@
 NAME=prometheus
-VERSION=1.5.2
+VERSION=1.6.1

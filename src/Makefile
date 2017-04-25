@@ -54,7 +54,7 @@ order-$(ROLL).mk: Makefile ../version.mk $(shell find . -name version.mk)
 clean.order:
 	-rm -f order-$(ROLL).mk
 
-bootstrap rpm pkg clean nuke:
+bootstrap rpm pkg clean refresh nuke:
 	@for dir in $(SRCDIRS); do			\
 		(cd $$dir; $(MAKE) $@);			\
 	done
