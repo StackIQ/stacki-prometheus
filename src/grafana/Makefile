@@ -2,7 +2,7 @@
 # @SI_Copyright@
 
 ROLLROOT       = ../../
-RPM.STRATEGY	= copy
+RPM.STRATEGY	= custom
 
 include $(STACKBUILD)/etc/CCRules.mk
 

@@ -2,7 +2,7 @@
 /src/order-*.mk
 .buildenv*
 .buildenv-stacki
-.rpmmacros
+*.rpmmacros
 *.pyc
 *~
 *#*#

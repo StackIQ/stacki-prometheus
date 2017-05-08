@@ -1,5 +1,5 @@
-%_topdir		/data2/src/stacki-prometheus/src/prometheus/../../build-stacki-prometheus-master
-%buildroot	/data2/src/stacki-prometheus/src/prometheus/prometheus.buildroot
+%_topdir		/state/partition1/src/stacki-prometheus/src/prometheus/../../build-stacki-prometheus-master
+%buildroot	/state/partition1/src/stacki-prometheus/src/prometheus/prometheus.buildroot
 %_var		/var
 %debug_package	%{nil}
 %__os_install_post    \

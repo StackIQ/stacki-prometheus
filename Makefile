@@ -43,15 +43,15 @@ ROLLROOT = .
 RURL        = https://github.com/prometheus/prometheus/releases/latest
 include $(PALLETBUILD)/etc/CCRolls.mk
 
-VERS=$(shell curl -s -k https://storage.googleapis.com/kubernetes-release/release/stable.txt | cut -c 2-)
+VERS=$(shell curl -s -k $(RURL) | sed "s/.*\(v.*\)\".*/\1/g" | cut -c 2-)
 
 refresh::
 	(                                \
 	echo "export ROLL        = stacki-prometheus" > version.mk;\
 	echo "export VERSION        = $(VERS)" >> version.mk;    \
 	echo "export ROLLVERSION     = $(VERS)" >> version.mk;    \
-	echo "export RELEASE        = 7.x_p$(PHASE)" >> version.mk;        \
-	echo "COLOR            = darkviolet" >> ./version.mk;     \
+	echo "export RELEASE        = 7.x" >> version.mk;        \
+	echo "COLOR            = darkviolet" >> version.mk;     \
 	)
 	$(MAKE) clean.all
 	$(MAKE) nuke.all
