@@ -56,7 +56,7 @@ class Command(stack.commands.sync.command):
 				stdin=subprocess.PIPE,
 				stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE,)
-		o, e = p.communicate(output)
+		o, e = p.communicate(output.encode())
 		p2 = subprocess.Popen(['/bin/sh'],
 				stdin=subprocess.PIPE,
 				stdout=None,

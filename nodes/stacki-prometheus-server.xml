@@ -1,24 +1,21 @@
-<?xml version="1.0" standalone="no"?>
-
-<kickstart>
+<stack:stack>
 
 
-<description>
-Your stacki-prometheus pallet description here
-</description>
+<stack:description>
+Your stacki-prometheus pallet stack:description here
+</stack:description>
 
-<si_copyright>
+<stack:si_copyright>
 (c) 2006 - 2016 StackIQ Inc.
 All rights reserved. stacki(r) v3.1 www.stacki.com
-</si_copyright>
+</stack:si_copyright>
 
-<package>prometheus</package>
-<package>grafana</package>
-<package>stacki-dashboards</package>
-<package>stacki-prometheus-commands</package>
-<package>foundation-py-requests</package>
+<stack:package>prometheus</stack:package>
+<stack:package>grafana</stack:package>
+<stack:package>stacki-dashboards</stack:package>
+<stack:package>stacki-prometheus-commands</stack:package>
 
-<post>
+<stack:script stack:stage="install-post">
 mkdir -p /opt/prometheus/dashboards
 
 for f in `ls /opt/prometheus/share/*.json`; do
@@ -26,11 +23,11 @@ for f in `ls /opt/prometheus/share/*.json`; do
 	sed "s/\${DS_PROMETHEUS}/&hostname;-prometheus/g" $f &gt; /opt/prometheus/dashboards/$sname
 	sed -i "s/DS_PROMETHEUS/&hostname;-prometheus/g" /opt/prometheus/dashboards/$sname
 done
-</post>
+</stack:script>
 
-<post> 
-<file name="/opt/prometheus/bin/grafana_config" perms="0755">
-#!/opt/stack/bin/python
+<stack:script stack:stage="install-post"> 
+<stack:file stack:name="/opt/prometheus/bin/grafana_config" stack:perms="0755">
+#!/opt/stack/bin/python3
 import stack.api as api
 import requests
 import json
@@ -59,7 +56,7 @@ def delete_ds(url):
 
 def add_ds(url,payload):
 	r = requests.post('%s/datasources' % url, payload)
-	print r.text
+	print(r.text)
 
 def delete_dash(url):
 	r = requests.get('%s/search' % url)
@@ -81,11 +78,11 @@ def add_dash(url,fname):
 	with open(fname, 'rb') as f:
 		jfile = json.load(f)
 	r = requests.post('%s/dashboards/db' % url, headers, jfile)
-	print r
-	print r.status_code
-	print r.text
+	print(r)
+	print(r.status_code)
+	print(r.text)
 
-print ("Deleting datasources and dashboards.")
+print("Deleting datasources and dashboards.")
 
 ds = get_ds(url)
 if ds != []:
@@ -94,41 +91,41 @@ dsb = get_dash(url)
 if dsb != []:
 	delete_dash(url)
 
-print ("adding &hostname;-prometheus datasource...")
+print("adding &hostname;-prometheus datasource...")
 add_ds(url,payload)
 
-print ("adding node_exporter metrics...")
+print("adding node_exporter metrics...")
 add_dash(url,'/opt/prometheus/dashboards/node-exporter-server-metrics_rev4.json')
 
 try:
     if has_it('stacki-kubernetes')[0] == True:
-        print "adding kubernetes prometheus"
+        print("adding kubernetes prometheus")
         add_dash(url,
         '/opt/prometheus/dashboards/kubernetes-pod-monitoring_rev1.json')
 except: pass
 
 try:
     if has_it('stacki-docker')[0] == True:
-        print "adding docker monitoring"
+        print("adding docker monitoring")
         add_dash(url,
             '/opt/prometheus/dashboards/docker-monitoring_rev1.json')
 except: pass
 
-</file>
-</post>
+</stack:file>
+</stack:script>
 
-<post cond="docker.swarm">
+<stack:script stack:stage="install-post" stack:cond="docker.swarm">
 
-<file name="/opt/prometheus/bin/grafana_config" mode="append" perms="0755">
+<stack:file stack:name="/opt/prometheus/bin/grafana_config" stack:mode="append" stack:perms="0755">
 print "adding docker swarm monitoring"
 add_dash(url, '/opt/prometheus/dashboards/docker-swarm-container-overview_rev20.json')
 add_dash(url, '/opt/prometheus/dashboards/docker-engine-metrics_rev2.json')
-</file>
+</stack:file>
 
-</post>
+</stack:script>
 
-<post>
-<file name="/opt/prometheus/etc/prometheus.main">
+<stack:script stack:stage="install-post">
+<stack:file stack:name="/opt/prometheus/etc/prometheus.main">
 # my global config
 global:
   scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
@@ -147,9 +144,9 @@ rule_files:
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
-</file>
+</stack:file>
 
-<file name="/opt/prometheus/etc/prometheus.job">
+<stack:file stack:name="/opt/prometheus/etc/prometheus.job">
 # The job name is added as a label job=job_name to any timeseries scraped from this config.
 scrape_configs:
   - job_name: 'prometheus'
@@ -157,10 +154,10 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
 
-    static_configs:</file>
-</post>
+    static_configs:</stack:file>
+</stack:script>
 
-<post cond="prometheus.firewall">
+<stack:script stack:stage="install-post" stack:cond="prometheus.firewall">
 /opt/stack/bin/stack add host firewall &hostname; network=all \
 	table=filter rulename=PROMETHEUS service="9090" \
 	protocol="tcp" action="ACCEPT" chain="INPUT" \
@@ -171,10 +168,13 @@ scrape_configs:
 	protocol="tcp" action="ACCEPT" chain="INPUT" \
 	flags="-m state --state NEW" comment="Grafana"
 
-systemctl restart iptables
-</post>
+/opt/stack/bin/stack report host firewall a:frontend | \
+	stack report script | bash
 
-<post>
+systemctl restart iptables
+</stack:script>
+
+<stack:script stack:stage="install-post">
 systemctl enable prometheus grafana-server node_exporter
 systemctl start node_exporter prometheus grafana-server
 
@@ -189,6 +189,6 @@ systemctl restart grafana-server
 echo "Syncing prometheus.yml..."
 stack sync prometheus
 systemctl is-active prometheus
-</post>
+</stack:script>
 
-</kickstart>
+</stack:stack>

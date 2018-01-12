@@ -1,14 +1,19 @@
 [Unit]
 Description=Prometheus Server
 Documentation=https://prometheus.io/docs/introduction/overview/
+Wants=network-online.target
 After=network-online.target
 
 [Service]
 User=prometheus
+Group=prometheus
+Type=simple
 Restart=on-failure
 ExecStart=/opt/prometheus/bin/prometheus \
-	-config.file=/opt/prometheus/etc/prometheus.yml \
-	-storage.local.path=/var/lib/prometheus/data
+	--config.file=/opt/prometheus/etc/prometheus.yml \
+	--storage.tsdb.path=/var/lib/prometheus/ \
+	--web.console.templates=/opt/prometheus/consoles \
+	--web.console.libraries=/opt/prometheus/console_libraries
 
 [Install]
 WantedBy=multi-user.target

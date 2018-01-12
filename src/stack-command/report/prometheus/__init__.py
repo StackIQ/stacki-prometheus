@@ -20,7 +20,7 @@ class Command(stack.commands.HostArgumentProcessor,
 
 	def getTargets(self,ports):
 		targets = []
-		host = self.getHostnames(['frontend'])
+		host = self.getHostnames(['a:frontend'])
 		targets.append('%s:9090' % host[0])
 
 		hosts = self.getHostnames()
@@ -35,7 +35,7 @@ class Command(stack.commands.HostArgumentProcessor,
 			stuff = (f.read())
 			f.close()
 			# and remove that pesky newline too
-			self.addOutput('',stuff[0:len(stuff)-1])
+			self.addOutput('',stuff[0:len(stuff)-1].decode())
 			output = "      - targets: [\n          '"
 			output += "',\n          '".join(self.getTargets(ports))
 			self.addOutput('',output + "'")
@@ -50,7 +50,7 @@ class Command(stack.commands.HostArgumentProcessor,
 			stuff = (f.read())
 			f.close()
 
-			self.addOutput('',stuff)
+			self.addOutput('',stuff.decode())
 
 	def getPorts(self):
 		ports = ['9100']

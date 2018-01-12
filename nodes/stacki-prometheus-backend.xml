@@ -1,20 +1,18 @@
-<?xml version="1.0" standalone="no"?>
-
-<kickstart>
+<stack:stack>
 
 
-	<description>
-	Your stacki-prometheus pallet description here
-	</description>
+	<stack:description>
+	Your stacki-prometheus pallet stack:description here
+	</stack:description>
 
-	<si_copyright>
+	<stack:si_copyright>
 	(c) 2006 - 2016 StackIQ Inc.
 	All rights reserved. stacki(r) v3.1 www.stacki.com
-	</si_copyright>
+	</stack:si_copyright>
 
-<package></package>
-<post>
-</post>
+<stack:package></stack:package>
+<stack:script stack:stage="install-post">
+</stack:script>
 
 
-</kickstart>
+</stack:stack>
