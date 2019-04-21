@@ -16,6 +16,10 @@ refresh::
 	)
 
 rpm::
+	if [ ! -f ./RPMS/grafana*.rpm ]; then \
+                make refresh; \
+        fi;
 	cp -p ./RPMS/$(NAME)*.x86_64.rpm $(REDHAT.RPMS)/$(ARCH)
 
-clean::
+nuke::
+	@rm -fr ./RPMS;

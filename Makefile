@@ -48,8 +48,8 @@ VERS=$(shell curl -s -k $(RURL) | sed "s/.*\(v.*\)\".*/\1/g" | cut -c 2-)
 refresh::
 	(                                \
 	echo "export ROLL        = stacki-prometheus" > version.mk;\
-	echo "export VERSION        = $(VERS)" >> version.mk;    \
-	echo "export ROLLVERSION     = $(VERS)" >> version.mk;    \
+	echo "export VERSION     = 2.0.1" >> version.mk;    \
+	echo "export ROLLVERSION        = $(VERS)" >> version.mk;    \
 	echo "export RELEASE        = 7.x" >> version.mk;        \
 	echo "COLOR            = darkviolet" >> version.mk;     \
 	)

@@ -14,7 +14,7 @@ include $(STACKBUILD)/etc/CCRules.mk
 VERS=$(shell curl -s -k $(RURL) | sed "s/.*\(v.*\)\".*/\1/g" | cut -c 2-)
 
 refresh::
-	rm -f $(NAME)*-linux-amd64.$(TGZ)
+	rm -f $(NAME)*linux-amd64.$(TGZ)
 	(						\
 		echo "NAME=$(NAME)" > version.mk;		\
 		echo "VERSION=$(VERS)" >> version.mk;	\
@@ -23,7 +23,12 @@ refresh::
 	wget --no-check-certificate -O $(TGZNAME) $(URL)v$(VERS)/$(TGZNAME)
 
 build::
-	tar -xf $(TGZNAME)
+	if [ ! -f $(TGZNAME) ]; then \
+                make refresh; \
+                tar -xf $(TGZNAME); \
+        else \
+                tar -xf $(TGZNAME); \
+        fi;
 
 install::
 	mkdir -p $(ROOT)$(PKGROOT)/bin
@@ -32,4 +37,5 @@ install::
 	$(INSTALL) -m755 $(TARDIR)/node_exporter $(ROOT)$(PKGROOT)/bin
 	$(INSTALL) -m644 ./systemd/node_exporter.service $(ROOT)/usr/lib/systemd/system/
 
-clean::
+nuke::
+	rm -fr $(NAME)*linux-amd64*

@@ -114,16 +114,6 @@ except: pass
 </stack:file>
 </stack:script>
 
-<stack:script stack:stage="install-post" stack:cond="docker.swarm">
-
-<stack:file stack:name="/opt/prometheus/bin/grafana_config" stack:mode="append" stack:perms="0755">
-print "adding docker swarm monitoring"
-add_dash(url, '/opt/prometheus/dashboards/docker-swarm-container-overview_rev20.json')
-add_dash(url, '/opt/prometheus/dashboards/docker-engine-metrics_rev2.json')
-</stack:file>
-
-</stack:script>
-
 <stack:script stack:stage="install-post">
 <stack:file stack:name="/opt/prometheus/etc/prometheus.main">
 # my global config

@@ -16,7 +16,7 @@ include $(STACKBUILD)/etc/CCRules.mk
 VERS=$(shell curl -s -k $(RURL) | sed "s/.*\(v.*\)\".*/\1/g" | cut -c 2-)
 
 refresh::
-	rm -f $(NAME)*-linux-amd64.$(TGZ)
+	rm -f $(NAME)*linux-amd64.$(TGZ)
 	(						\
 		echo "NAME=prometheus" > version.mk;		\
 		echo "VERSION=$(VERS)" >> version.mk;	\
@@ -25,7 +25,13 @@ refresh::
 	wget --no-check-certificate -O $(TGZNAME) $(URL)v$(VERS)/$(TGZNAME)
 
 build::
-	tar -xf $(TGZNAME)
+	if [ ! -f $(TGZNAME) ]; then \
+		make refresh; \
+		tar -xf $(TGZNAME); \
+	else \
+		tar -xf $(TGZNAME); \
+	fi;
+
 
 install::
 	mkdir -p $(ROOT)$(PKGROOT)/bin
@@ -39,4 +45,5 @@ install::
 	cp -a $(TARDIR)/consoles $(ROOT)$(PKGROOT)
 	cp -a $(TARDIR)/console_libraries $(ROOT)$(PKGROOT)
 
-clean::
+nuke::
+	rm -fr $(NAME)*linux-amd64*
